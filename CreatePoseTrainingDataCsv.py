@@ -84,10 +84,12 @@ with open(csv_out_path, 'w') as csv_out_file:
         assert len(pose_landmarks.landmark) == 33, 'Unexpected number of predicted pose landmarks: {}'.format(len(pose_landmarks.landmark))
         pose_landmarks = [[lmk.x, lmk.y, lmk.z] for lmk in pose_landmarks.landmark]
 
+        print(pose_landmarks)
+
         # Map pose landmarks from [0, 1] range to absolute coordinates to get
         # correct aspect ratio.
         frame_height, frame_width = output_frame.shape[:2]
-        pose_landmarks *= np.array([frame_width, frame_height, frame_width])
+        pose_landmarks /= np.array([frame_width, frame_height, frame_width])
 
         # Write pose sample to CSV.
         pose_landmarks = np.around(pose_landmarks, 5).flatten().astype(str).tolist()

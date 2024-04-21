@@ -21,8 +21,10 @@ with open('poses_out.csv', newline='\n') as csvfile:
         X.append(row[2:])
         y.append(row[1])
 
-svm_clf = SVC(kernel="rbf", C=100)
+svm_clf = SVC(kernel="rbf", C=1e100)
 svm_clf.fit(X, y)
+
+print ("Training Done")
 
 import pickle
 with open('model.pkl','wb') as f:
@@ -36,7 +38,7 @@ with open(testData, 'w') as csv_out_file:  # Open csv here
 
   cap = cv2.VideoCapture(0) # Video Capture
   with mp_pose.Pose(
-      min_detection_confidence=0.5,
+      min_detection_confidence=0.85,
       min_tracking_confidence=0.5) as pose:
     while cap.isOpened():
       success, image = cap.read()
@@ -71,7 +73,7 @@ with open(testData, 'w') as csv_out_file:  # Open csv here
         # Map pose landmarks from [0, 1] range to absolute coordinates to get
         # correct aspect ratio.
         frame_height, frame_width = image.shape[:2]
-        landmarks *= np.array([frame_width, frame_height, frame_width])
+        landmarks /= np.array([frame_width, frame_height, frame_width])
 
         # Write to csv
         landmarks = np.around(landmarks, 5).flatten().astype(str).tolist()  # Convert to a type the csv can read/write
@@ -89,6 +91,6 @@ with open(testData, 'w') as csv_out_file:  # Open csv here
       # Flip the image horizontally for a selfie-view display.
       cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
       if cv2.waitKey(1) == ord('q'):
-        csv_out_file.close()  
-        break
+              break
+  testData.close
 cap.release()
