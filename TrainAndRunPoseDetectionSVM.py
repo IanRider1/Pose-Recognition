@@ -38,7 +38,7 @@ with open(testData, 'w') as csv_out_file:  # Open csv here
 
   cap = cv2.VideoCapture(0) # Video Capture
   with mp_pose.Pose(
-      min_detection_confidence=0.85,
+      min_detection_confidence=0.5,
       min_tracking_confidence=0.5) as pose:
     while cap.isOpened():
       success, image = cap.read()
