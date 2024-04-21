@@ -100,6 +100,6 @@ with open(testData, 'w') as csv_out_file:  # Open csv here
       # Flip the image horizontally for a selfie-view display.
       cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
       if cv2.waitKey(1) == ord('q'):
-              break
-  testData.close
+        csv_out_file.close()  
+        break
 cap.release()
