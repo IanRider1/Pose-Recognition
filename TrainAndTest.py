@@ -2,11 +2,13 @@ import cv2
 import csv
 import os
 import sys
+import matplotlib.pyplot as plt
 # import tqdm
 import mediapipe as mp
 import numpy as np
 from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import ConfusionMatrixDisplay
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
@@ -44,3 +46,27 @@ for _ in range(10):
 # import pickle
 # with open('model.pkl','wb') as f:
 #     pickle.dump(svm_clf,f)
+
+class_names = ['GOLf', 'NO_POSE', 'START', 'STOP', 'WAVE_RIGHT_HAND', 'BICEP_CURL']
+np.set_printoptions(precision=2)
+
+# Plot non-normalized confusion matrix
+titles_options = [
+    ("Confusion matrix, without normalization", None),
+    ("Normalized confusion matrix", "true"),
+]
+for title, normalize in titles_options:
+    disp = ConfusionMatrixDisplay.from_estimator(
+        svms[10],
+        X_test,
+        y_test,
+        display_labels=class_names,
+        cmap=plt.cm.Blues,
+        normalize=normalize,
+    )
+    disp.ax_.set_title(title)
+
+    print(title)
+    print(disp.confusion_matrix)
+
+plt.show()
