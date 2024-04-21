@@ -14,13 +14,32 @@ mp_pose = mp.solutions.pose
 X = []
 y = []
 
+def get_mode(list1):
+    # Create a dictionary to store the frequency of each element
+    freq = {}
+    for element in list1:
+        if element in freq:
+            freq[element] += 1
+        else:
+            freq[element] = 1
+
+    # Find the element with the highest frequency
+    max_freq = 0
+    mode = None
+    for element, frequency in freq.items():
+        if frequency > max_freq:
+            max_freq = frequency
+            mode = element
+
+    return mode
 
 with open('model.pkl', 'rb') as f:
     svm_clf = pickle.load(f)
 
 testData = 'pose_webcam.csv'
 
-
+count = 0
+last_ten = [None for _ in range(10)]
 with open(testData, 'w') as csv_out_file:  # Open csv here
   csv_out_writer = csv.writer(csv_out_file, delimiter=',', quoting=csv.QUOTE_MINIMAL) # Writer
 
@@ -75,7 +94,9 @@ with open(testData, 'w') as csv_out_file:  # Open csv here
               
         if (len(X) > 1):
             X_new = [X[-1]] # Reads last frame?
-            print(svm_clf.predict(X_new))
+            last_ten[count%10] = svm_clf.predict(X_new)[0]
+            print(get_mode(last_ten))
+            count += 1
       # Flip the image horizontally for a selfie-view display.
       cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
       if cv2.waitKey(1) == ord('q'):

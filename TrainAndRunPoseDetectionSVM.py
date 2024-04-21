@@ -21,7 +21,7 @@ with open('poses_out.csv', newline='\n') as csvfile:
         X.append(row[2:])
         y.append(row[1])
 
-svm_clf = SVC(kernel="rbf", C=1e100)
+svm_clf = SVC(kernel="rbf", C=100)
 svm_clf.fit(X, y)
 
 import pickle
