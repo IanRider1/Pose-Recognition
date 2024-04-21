@@ -2,7 +2,7 @@ import cv2
 import csv
 import os
 import sys
-import tqdm
+# import tqdm
 import mediapipe as mp
 import numpy as np
 from sklearn.svm import SVC
@@ -24,6 +24,9 @@ with open('poses_out.csv', newline='\n') as csvfile:
 svm_clf = SVC(kernel="rbf", C=1e100)
 svm_clf.fit(X, y)
 
+import pickle
+with open('model.pkl','wb') as f:
+    pickle.dump(svm_clf,f)
 
 # Live webcam data
 
