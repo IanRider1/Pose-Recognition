@@ -1,13 +1,18 @@
 # Pose-Recognition
 Applied Machine Learning (EEET-520) final project - pose recognition team
 
+INTEGRATION TEAM READ THIS:
+
+  The files you need for this to work are: PosePredictor.py, model.pkl, and poses_out.csv. With these all in the same directory, run the PosePredictor.py.
+  This will open the webcam and only make a prediction when the confidence of a class existing is .85 10 times in a row. The requested control strings that indicate    the predicted pose are in print statements near the bottom of the file, we were not sure how these were to be "sent" to the robot software.
+
 There are two main files in this repo: 
 
   CreatePoseTrainingDataCsv.py takes in images from the poses_in folder and creates a training set file called poses_out.csv. Inside the poses_in folder, the name of each subfolder dictates the class of the images     inside.
 
   TrainAndRunPoseDetectionSVM.py accepts poses_out.csv as training data to train an SVM and then runs that SVM on webcam images.
 
-Use Instructions:
+Re-Training:
 
   If you simply want to train/run the SVM, download TrainAndRunPoseDetectionSVM.py and poses_out.csv. These will need to be in the same directory when you run the Python file.
 
