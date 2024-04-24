@@ -82,36 +82,48 @@ with open(testData, 'w') as csv_out_file:  # Open csv here
         if (len(X) > 1):
             X_new = [X[-1]] # Reads last frame?
             ProbArray = svm_clf.predict_proba(X_new)
+            # print(svm_clf.classes_)
+            # print(ProbArray)
 
             if (ProbArray[0][0] > .85):
                 FieldGoalProb += 1
                 if (FieldGoalProb >= 10):
                    print("FieldGoal")
                    PreditionMade = True
+            else:
+               FieldGoalProb = 0
 
-            if (ProbArray[0][1] > .85):
+            if (ProbArray[0][1] > .95):
                GolfProb += 1
                if (GolfProb >= 10):
                    print("GolfP")
                    PreditionMade = True
+            else:
+               GolfProb = 0
         
             if (ProbArray[0][2] > .85):
                 noPoseProb += 1
                 if (noPoseProb >= 10):
                    print("NoPose")
                    PreditionMade = True
+            else:
+               noPoseProb = 0
 
             if (ProbArray[0][3] > .85):
                 TPoseProb += 1
                 if (TPoseProb >= 10):
                    print("TPose")
                    PreditionMade = True
+            else:
+               TPoseProb = 0
 
             if (ProbArray[0][4] > .85):
                 WaveProb += 1
                 if (WaveProb >= 10):
                    print ("Wave")
                    PreditionMade = True
+            else:
+               WaveProb = 0
 
             if (PreditionMade == True):
                FieldGoalProb = 0
