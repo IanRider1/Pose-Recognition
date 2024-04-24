@@ -21,7 +21,7 @@ with open('poses_out.csv', newline='\n') as csvfile:
         X.append(row[2:])
         y.append(row[1])
 
-svm_clf = SVC(kernel="rbf", C=1e100)
+svm_clf = SVC(kernel="rbf", C=1e100, probability=True)
 svm_clf.fit(X, y)
 
 print ("Training Done")
@@ -35,6 +35,14 @@ with open('model.pkl','wb') as f:
 testData = 'pose_webcam.csv'
 with open(testData, 'w') as csv_out_file:  # Open csv here
   csv_out_writer = csv.writer(csv_out_file, delimiter=',', quoting=csv.QUOTE_MINIMAL) # Writer
+
+  # Reset probability accumulators to zero
+  FieldGoalProb = 0
+  GolfProb = 0
+  noPoseProb = 0
+  TPoseProb = 0
+  WaveProb = 0
+  PreditionMade = False
 
   cap = cv2.VideoCapture(0) # Video Capture
   with mp_pose.Pose(
@@ -66,7 +74,7 @@ with open(testData, 'w') as csv_out_file:  # Open csv here
             results.pose_landmarks,
             mp_pose.POSE_CONNECTIONS,
             landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
-        
+
         # Write to csv file of landmarks
         landmarks = [[lmk.x, lmk.y, lmk.z] for lmk in landmarks.landmark]
 
@@ -78,19 +86,65 @@ with open(testData, 'w') as csv_out_file:  # Open csv here
         # Write to csv
         landmarks = np.around(landmarks, 5).flatten().astype(str).tolist()  # Convert to a type the csv can read/write
         csv_out_writer.writerow(landmarks)
-      
+
         # Read and predict class
         with open('pose_webcam.csv', newline='\n') as csvfile:
           spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
           for row in spamreader:
               X.append(row)
-              
+
 
         X_new = [X[-1]] # Reads last frame?
-        print(svm_clf.predict(X_new))
+
+        #print(svm_clf.classes_)
+        ProbArray = svm_clf.predict_proba(X_new)
+        # print(svm_clf.classes_)
+
+        if (ProbArray[0][0] > .85):
+          FieldGoalProb += 1
+          if (FieldGoalProb >= 10):
+            print("Start")
+            PreditionMade = True
+
+        if (ProbArray[0][1] > .85):
+          GolfProb += 1
+          if (GolfProb >= 10):
+             print("Golf")
+             PreditionMade = True
+        
+        if (ProbArray[0][2] > .85):
+          noPoseProb += 1
+          if (noPoseProb >= 10):
+             print("No Pose")
+             PreditionMade = True
+
+        if (ProbArray[0][3] > .85):
+          TPoseProb += 1
+          if (TPoseProb >= 10):
+             print("Stop")
+             PreditionMade = True
+
+        if (ProbArray[0][4] > .85):
+          WaveProb += 1
+          if (WaveProb >= 10):
+             print ("Wave")
+             PreditionMade = True
+
+        if (PreditionMade == True):
+           FieldGoalProb = 0
+           GolfProb = 0
+           noPoseProb = 0
+           TPoseProb = 0
+           WaveProb = 0
+           PreditionMade = False
+
+        # print(svm_clf.predict_proba(X_new))
+        # print(FieldGoalProb, GolfProb, noPoseProb, TPoseProb, WaveProb)
+
       # Flip the image horizontally for a selfie-view display.
       cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
       if cv2.waitKey(1) == ord('q'):
               break
-  testData.close
+  csv_out_file.close()
+
 cap.release()
