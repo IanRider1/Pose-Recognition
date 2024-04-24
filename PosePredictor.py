@@ -29,6 +29,7 @@ with open(testData, 'w') as csv_out_file:  # Open csv here
   TPoseProb = 0
   WaveProb = 0
   PreditionMade = False
+  noPredictionCnt = 0
 
   cap = cv2.VideoCapture(0) # Video Capture
   with mp_pose.Pose(
@@ -93,7 +94,7 @@ with open(testData, 'w') as csv_out_file:  # Open csv here
             else:
                FieldGoalProb = 0
 
-            if (ProbArray[0][1] > .95):
+            if (ProbArray[0][1] > .90):
                GolfProb += 1
                if (GolfProb >= 10):
                    print("GolfP")
@@ -131,7 +132,13 @@ with open(testData, 'w') as csv_out_file:  # Open csv here
                noPoseProb = 0
                TPoseProb = 0
                WaveProb = 0
+               noPredictionCnt = 0
                PreditionMade = False
+            else:
+               noPredictionCnt += 1
+               if (noPredictionCnt >= 10):
+                  noPredictionCnt = 0
+                  print("noPose")
             
       # Flip the image horizontally for a selfie-view display.
       cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
