@@ -11,6 +11,47 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
 
+import socket
+
+# Create a socket object
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+def connect_to_robot():
+   print('connecting')
+
+   # Connect to RobotStudio
+   client_socket.settimeout(None)
+   client_socket.connect(('192.168.125.1', 5024))
+
+def send_to_studio(name):
+   while True:
+      if len(name) <= 9:
+         # Chec all characters are either alphabets or spaces
+         if name.isalpha() or ' ' in name:
+            break
+         else:
+            print("Invalid input. Please enter alphabets and spaces only.")
+      else:
+         toadd = 8 - len(name)
+         i = 1
+         for i in toadd:
+            name = name + ' '
+            break
+            
+   print("Valid input:", name)
+
+   # Prepare the data in the required format to send to RobotStudio
+   data_to_send = name + "."
+        
+   # Print the data being sent
+   print(f"Sending: {data_to_send}")
+
+
+   # Send the data to RobotStudio
+   client_socket.sendall(data_to_send.encode())
+
+connect_to_robot()
+
 X = []
 y = []
 
@@ -90,6 +131,7 @@ with open(testData, 'w') as csv_out_file:  # Open csv here
                 FieldGoalProb += 1
                 if (FieldGoalProb >= 10):
                    print("FieldGoal")
+                   send_to_studio("FieldGoal")
                    PreditionMade = True
             else:
                FieldGoalProb = 0
@@ -98,6 +140,7 @@ with open(testData, 'w') as csv_out_file:  # Open csv here
                GolfProb += 1
                if (GolfProb >= 10):
                    print("GolfP")
+                   send_to_studio("GolfP")
                    PreditionMade = True
             else:
                GolfProb = 0
@@ -106,6 +149,7 @@ with open(testData, 'w') as csv_out_file:  # Open csv here
                 noPoseProb += 1
                 if (noPoseProb >= 10):
                    print("NoPose")
+                   # send_to_studio("NoPose")
                    PreditionMade = True
             else:
                noPoseProb = 0
@@ -114,6 +158,7 @@ with open(testData, 'w') as csv_out_file:  # Open csv here
                 TPoseProb += 1
                 if (TPoseProb >= 10):
                    print("TPose")
+                   send_to_studio("TPose")
                    PreditionMade = True
             else:
                TPoseProb = 0
@@ -122,6 +167,7 @@ with open(testData, 'w') as csv_out_file:  # Open csv here
                 WaveProb += 1
                 if (WaveProb >= 10):
                    print ("Wave")
+                   send_to_studio("Wave")
                    PreditionMade = True
             else:
                WaveProb = 0
@@ -139,6 +185,7 @@ with open(testData, 'w') as csv_out_file:  # Open csv here
                if (noPredictionCnt >= 10):
                   noPredictionCnt = 0
                   print("noPose")
+                  # send_to_studio("NoPose")
             
       # Flip the image horizontally for a selfie-view display.
       cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
