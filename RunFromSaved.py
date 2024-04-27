@@ -91,7 +91,7 @@ with open(testData, 'w') as csv_out_file:  # Open csv here
           spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
           for row in spamreader:
               X.append(row)
-              
+                
         if (len(X) > 1):
             X_new = [X[-1]] # Reads last frame?
             last_ten[count%10] = svm_clf.predict(X_new)[0]

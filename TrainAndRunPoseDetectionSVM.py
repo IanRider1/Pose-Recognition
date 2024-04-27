@@ -10,6 +10,49 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
 
+#Drawing Letter Python Code.txt
+import socket
+
+# Create a socket object
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+def connect_to_robot():
+
+
+    print('connecting')
+
+    # Connect to RobotStudio
+    client_socket.settimeout(None)
+    client_socket.connect(('192.168.125.1', 5024))
+
+def send_to_studio(name):
+    
+    while True:
+        if len(name) <= 9:
+        # Chec all characters are either alphabets or spaces
+            if name.isalpha() or ' ' in name:
+                break
+            else:
+                print("Invalid input. Please enter alphabets and spaces only.")
+        else:
+            toadd = 8 - len(name)
+            i = 1
+            for i in toadd:
+                name = name + ' '
+            break
+            
+    print("Valid input:", name)
+
+    # Prepare the data in the required format to send to RobotStudio
+    data_to_send = name + "."
+        
+    # Print the data being sent
+    print(f"Sending: {data_to_send}")
+
+
+    # Send the data to RobotStudio
+    client_socket.sendall(data_to_send.encode())
+
 # Train the SVM
 X = []
 y = []
@@ -31,7 +74,6 @@ with open('model.pkl','wb') as f:
     pickle.dump(svm_clf,f)
 
 # Live webcam data
-
 testData = 'pose_webcam.csv'
 with open(testData, 'w') as csv_out_file:  # Open csv here
   csv_out_writer = csv.writer(csv_out_file, delimiter=',', quoting=csv.QUOTE_MINIMAL) # Writer
@@ -44,6 +86,9 @@ with open(testData, 'w') as csv_out_file:  # Open csv here
   WaveProb = 0
   PreditionMade = False
 
+  # Connect to robot
+  connect_to_robot()  
+  
   cap = cv2.VideoCapture(0) # Video Capture
   with mp_pose.Pose(
       min_detection_confidence=0.5,
@@ -104,30 +149,35 @@ with open(testData, 'w') as csv_out_file:  # Open csv here
           FieldGoalProb += 1
           if (FieldGoalProb >= 10):
             print("Start")
+            send_to_studio("Start")
             PreditionMade = True
 
         if (ProbArray[0][1] > .85):
           GolfProb += 1
           if (GolfProb >= 10):
              print("Golf")
+             send_to_studio("Golf")
              PreditionMade = True
         
         if (ProbArray[0][2] > .85):
           noPoseProb += 1
           if (noPoseProb >= 10):
              print("No Pose")
+             send_to_studio("No Pose")
              PreditionMade = True
 
         if (ProbArray[0][3] > .85):
           TPoseProb += 1
           if (TPoseProb >= 10):
              print("Stop")
+             send_to_studio("Stop")
              PreditionMade = True
 
         if (ProbArray[0][4] > .85):
           WaveProb += 1
           if (WaveProb >= 10):
              print ("Wave")
+             send_to_studio("Wave")
              PreditionMade = True
 
         if (PreditionMade == True):
