@@ -13,7 +13,7 @@ mp_pose = mp.solutions.pose
 #Drawing Letter Python Code.txt
 import socket
 
-# Create a socket object
+# Create a socket object to connect to the robot arm
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 def connect_to_robot():
@@ -25,6 +25,7 @@ def connect_to_robot():
     client_socket.settimeout(None)
     client_socket.connect(('192.168.125.1', 5024))
 
+# Function to send messages to the robot in <=9 character strings
 def send_to_studio(name):
     
     while True:
@@ -64,8 +65,9 @@ with open('poses_out.csv', newline='\n') as csvfile:
         X.append(row[2:])
         y.append(row[1])
 
+# Create SVM model
 svm_clf = SVC(kernel="rbf", C=1e100, probability=True)
-svm_clf.fit(X, y)
+svm_clf.fit(X, y)  # Fit model to training data
 
 print ("Training Done")
 
@@ -74,7 +76,7 @@ with open('model.pkl','wb') as f:
     pickle.dump(svm_clf,f)
 
 # Live webcam data
-testData = 'pose_webcam.csv'
+testData = 'pose_webcam.csv'  # Csv to write webcam landmark data
 with open(testData, 'w') as csv_out_file:  # Open csv here
   csv_out_writer = csv.writer(csv_out_file, delimiter=',', quoting=csv.QUOTE_MINIMAL) # Writer
 
@@ -93,7 +95,7 @@ with open(testData, 'w') as csv_out_file:  # Open csv here
   with mp_pose.Pose(
       min_detection_confidence=0.5,
       min_tracking_confidence=0.5) as pose:
-    while cap.isOpened():
+    while cap.isOpened():  # While webcam is capturing
       success, image = cap.read()
       if not success:
         print("Ignoring empty camera frame.")
@@ -132,19 +134,22 @@ with open(testData, 'w') as csv_out_file:  # Open csv here
         landmarks = np.around(landmarks, 5).flatten().astype(str).tolist()  # Convert to a type the csv can read/write
         csv_out_writer.writerow(landmarks)
 
-        # Read and predict class
+        # Read last entry and predict class
         with open('pose_webcam.csv', newline='\n') as csvfile:
           spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
           for row in spamreader:
               X.append(row)
 
-
-        X_new = [X[-1]] # Reads last frame?
+        # Assign last entry to X_new
+        X_new = [X[-1]] 
 
         #print(svm_clf.classes_)
+        # Assign prediction to array
         ProbArray = svm_clf.predict_proba(X_new)
         # print(svm_clf.classes_)
 
+        # If confidence is higher than 85% for 10 or more reads, it will output a prediction was made
+        # of a certain class
         if (ProbArray[0][0] > .85):
           FieldGoalProb += 1
           if (FieldGoalProb >= 10):
